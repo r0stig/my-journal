@@ -1,10 +1,9 @@
 package api
 
 import (
+	"io/ioutil"
 	"net/http"
 	"os"
-
-	"io/ioutil"
 
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -23,9 +22,14 @@ func NewAPI(logger *zap.SugaredLogger) *API {
 func (api API) Start() {
 	r := mux.NewRouter()
 
-	h := &handler{}
-	r.HandleFunc("/store", h.storeDatabaseHandler).
-		Methods("PUT")
+	h := &handler{
+		logger: api.logger,
+	}
+	r.HandleFunc("/store", h.storeDatabaseHandler)
+	//.
+	//Methods(http.MethodPut, http.MethodOptions)
+
+	r.Use(mux.CORSMethodMiddleware(r))
 
 	http.Handle("/", r)
 
@@ -33,6 +37,14 @@ func (api API) Start() {
 }
 
 func (h handler) storeDatabaseHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "OPTIONS,PUT")
+	w.Header().Set("Access-Control-Allow-Headers", "content-type")
+	if r.Method == http.MethodOptions {
+		h.logger.Debug("Sending options...")
+		return
+	}
+	h.logger.Debug("not options...")
 	file, err := os.Create("./contents.json")
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -54,4 +66,5 @@ func (h handler) storeDatabaseHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+
 }
