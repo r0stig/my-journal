@@ -80,6 +80,14 @@ export function exportStore(): Promise<void> {
     getAllRequest.onsuccess = (event: any) => {
       const result = event.target.result
       console.log('get all result', result)
+
+      fetch('http://localhost:8080/store', {
+        method: 'PUT',
+        body: JSON.stringify(result),
+        headers: {
+          'content-type': 'application/json'
+        }
+      })
       resolve(result)
     }
   })
