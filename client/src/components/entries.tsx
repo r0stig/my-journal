@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { Entry } from '../lib/store'
 
 const Container = styled.div`
 
@@ -14,17 +15,13 @@ const ListContent = styled.div``
 
 const ListDate = styled.div``
 
-type Entry = {
-  title: string
-  createdAt: string
-  content: string
-}
+
 
 export function Entries() {
   const entries: Entry[] = [
     {
       title: 'title',
-      createdAt: '2021-01-01T12:00:00.000Z',
+      day: '2021-01-01',
       content: 'Hejsan hoppsan hur står det till..'
     }
   ]
@@ -39,7 +36,7 @@ export function Entries() {
             {entry.content}
           </ListContent>
           <ListDate>
-            {entry.createdAt}
+            {entry.day}
           </ListDate>
         </ListItem>
       ))}
