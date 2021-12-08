@@ -57,6 +57,60 @@ export function storeEntry(entry: Entry): Promise<void> {
   })
 }
 
+export function getEntry(day: string): Promise<Entry> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([ENTRIES_OBJECT_STORE], "readwrite")
+
+    transaction.onerror = (event) => {
+      reject(new Error('Error creating transaction'))
+    }
+
+    transaction.oncomplete = () => {
+
+    }
+
+    const entriesObjectStore = transaction.objectStore(ENTRIES_OBJECT_STORE)
+
+    const getAllRequest = entriesObjectStore.get(day)
+
+    getAllRequest.onerror = (event: any) => {
+      reject(new Error('Error fetching all: ' + event.target.error))
+    }
+
+    getAllRequest.onsuccess = (event: any) => {
+      const result = event.target.result
+      resolve(result)
+    }
+  })
+}
+
+export function getEntries(): Promise<Entry[]> {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction([ENTRIES_OBJECT_STORE], "readwrite")
+
+    transaction.onerror = (event) => {
+      reject(new Error('Error creating transaction'))
+    }
+
+    transaction.oncomplete = () => {
+
+    }
+
+    const entriesObjectStore = transaction.objectStore(ENTRIES_OBJECT_STORE)
+
+    const getAllRequest = entriesObjectStore.getAll()
+
+    getAllRequest.onerror = (event: any) => {
+      reject(new Error('Error fetching all: ' + event.target.error))
+    }
+
+    getAllRequest.onsuccess = (event: any) => {
+      const result = event.target.result
+      resolve(result)
+    }
+  })
+}
+
 export function exportStore(): Promise<void> {
   return new Promise((resolve, reject) => {
     const transaction = db.transaction([ENTRIES_OBJECT_STORE], "readwrite")
