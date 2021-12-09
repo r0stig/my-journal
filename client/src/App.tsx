@@ -6,9 +6,14 @@ import { initStore } from './lib/store'
 import { TabBar, Tabs } from './components/tab-bar/tab-bar'
 import { Toaster } from './components/toast/toast'
 
+function getTodayKey() {
+  return new Date().toLocaleDateString('sv', { year: 'numeric', month: 'numeric', day: 'numeric'})
+}
+
 function App() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [tabOpen, setTabOpen] = React.useState<Tabs>('list')
+  const [writeDay, setWriteDay] = React.useState<string>(getTodayKey())
 
   React.useEffect(() => {
     setIsLoading(true)
@@ -21,8 +26,16 @@ function App() {
   }, [])
 
   const handleTabClick = (item: Tabs) => {
+    if (item === 'write') {
+      setWriteDay(getTodayKey())
+    }
     console.log('asdasdas', item)
     setTabOpen(item)
+  }
+
+  const handleEntryClick = (day: string) => {
+    setWriteDay(day)
+    setTabOpen('write')
   }
 
   return (
@@ -32,8 +45,8 @@ function App() {
           Loading...
         </>}
         {!isLoading && <>
-          {tabOpen === 'list' && <Entries />}
-          {tabOpen === 'write' && <Write />}
+          {tabOpen === 'list' && <Entries onEntryClick={handleEntryClick} />}
+          {tabOpen === 'write' && <Write entryKey={writeDay} />}
           <TabBar onTabClick={handleTabClick} />
         </>}
       </>

@@ -15,8 +15,11 @@ function maybeShorten(str: string, max: number): string {
   return str
 }
 
+interface Props {
+  onEntryClick: (day: string) => void
+}
 
-export function Entries() {
+export const Entries: React.FC<Props> = ({ onEntryClick }) => {
   const [entries, setEntries] = React.useState<Entry[]>([])
   const [error, setError] = React.useState<string>('')
 
@@ -30,16 +33,20 @@ export function Entries() {
     })
   }, [])
 
+  const handleEntryCardClick = (e: React.MouseEvent<HTMLDivElement>, entry: Entry) => {
+    onEntryClick(entry.day)
+  }
+
   return (
     <Container>
       {error && <>
         {error}
       </>}
       {entries.map((entry) => (
-        <EntryCard key={entry.day}>
+        <EntryCard key={entry.day} onClick={(e) => handleEntryCardClick(e, entry)}>
           <Header>
             <Title>
-              {entry.title} saksjdl aksjdlkas jdlakjsd lkajsdslkajs ldskajs
+              {entry.title}
             </Title>
             <Date>
               {entry.day}

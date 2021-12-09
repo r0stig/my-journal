@@ -41,7 +41,11 @@ function sync () {
 
 }
 
-export function Write() {
+interface Props {
+  entryKey: string
+}
+
+export const Write: React.FC<Props> = ({ entryKey }) => {
   const [title, setTitle] = React.useState<string>('')
   const [content, setContent] = React.useState<string>('')
   const [lastSyncedTime, setLastSyncedTime] = React.useState<string>('')
@@ -54,12 +58,9 @@ export function Write() {
   const titleEditor = React.useRef<HTMLInputElement>(null)
   const contentEditor = React.useRef<HTMLTextAreaElement>(null)
 
-  const today = new Date()
-  const day = today.toLocaleDateString('sv', { year: 'numeric', month: 'numeric', day: 'numeric'})
-
   React.useEffect(() => {
     setIsLoading(true)
-    getEntry(day).then((entry) => {
+    getEntry(entryKey).then((entry) => {
       console.log('get entry ressult', entry)
       setTitle(entry.title)
       setContent(entry.content)
@@ -69,7 +70,7 @@ export function Write() {
       console.warn(err)
       setIsLoading(false)
     })
-  }, [day])
+  }, [entryKey])
 
   React.useEffect(() => {
     let intervalHandler = 0
@@ -78,7 +79,7 @@ export function Write() {
         storeEntry({
           title,
           content,
-          day,
+          day: entryKey,
         }).then(() => {
           setLastSyncedTime(new Date().toISOString())
           exportStore().catch((err) => {
@@ -91,14 +92,14 @@ export function Write() {
     return () => {
       clearInterval(intervalHandler)
     }
-  }, [isLoading, title, content, hasChanged, day])
+  }, [isLoading, title, content, hasChanged, entryKey])
 
   useUnmountOnceWithDeps(() => {
     if (hasChanged) {
       storeEntry({
         title,
         content,
-        day
+        day: entryKey
       })
       exportStore().catch((err) => {
         toastContext.showToast({ content: 'Failed to sync with backend' })
