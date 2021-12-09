@@ -4,6 +4,7 @@ import { Write } from './pages/write/Write'
 import { Entries } from './components/entries'
 import { initStore } from './lib/store'
 import { TabBar, Tabs } from './components/tab-bar/tab-bar'
+import { Toaster } from './components/toast/toast'
 
 function App() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
@@ -25,16 +26,18 @@ function App() {
   }
 
   return (
-    <>
-      {isLoading && <>
-        Loading...
-      </>}
-      {!isLoading && <>
-        {tabOpen === 'list' && <Entries />}
-        {tabOpen === 'write' && <Write />}
-        <TabBar onTabClick={handleTabClick} />
-      </>}
-    </>
+    <Toaster>
+      <>
+        {isLoading && <>
+          Loading...
+        </>}
+        {!isLoading && <>
+          {tabOpen === 'list' && <Entries />}
+          {tabOpen === 'write' && <Write />}
+          <TabBar onTabClick={handleTabClick} />
+        </>}
+      </>
+    </Toaster>
   )
 }
 

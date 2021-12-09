@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { ToastContext } from '../../components/toast/toast'
 import { storeEntry, exportStore, getEntry } from '../../lib/store'
 import { useUnmountOnceWithDeps } from '../../lib/use-unmount-with-deps'
 
@@ -45,7 +46,10 @@ export function Write() {
   const [content, setContent] = React.useState<string>('')
   const [lastSyncedTime, setLastSyncedTime] = React.useState<string>('')
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [hasChanged, setHasChanged] = React.useState<boolean>(false)
   const [error, setError] = React.useState<string>('')
+
+  const toastContext = React.useContext(ToastContext)
 
   const titleEditor = React.useRef<HTMLInputElement>(null)
   const contentEditor = React.useRef<HTMLTextAreaElement>(null)
@@ -63,13 +67,14 @@ export function Write() {
     }).catch((err) => {
       setIsLoading(false)
       setError('Error fetching entry')
+      toastContext.showToast({ content: 'Hej hopp' })
       console.error(err)
     })
-  }, [])
+  }, [day])
 
   React.useEffect(() => {
     let intervalHandler = 0
-    if (!isLoading) {
+    if (!isLoading && hasChanged) {
       intervalHandler = window.setInterval(() => {
         storeEntry({
           title,
@@ -77,26 +82,28 @@ export function Write() {
           day,
         }).then(() => {
           setLastSyncedTime(new Date().toISOString())
+          exportStore()
         })
-
-        exportStore()
       }, 5000)
     }
 
     return () => {
       clearInterval(intervalHandler)
     }
-  }, [isLoading, title, content])
+  }, [isLoading, title, content, hasChanged, day])
 
   useUnmountOnceWithDeps(() => {
-    storeEntry({
-      title,
-      content,
-      day
-    })
+    if (hasChanged) {
+      storeEntry({
+        title,
+        content,
+        day
+      })
+      exportStore()
+    }
     // TODO: When this fails, need to notify the user somehow. Maybe
     // with a global toast?
-  }, [title, content])
+  }, [title, content, hasChanged])
 
   const handleTitleEditorKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -107,10 +114,12 @@ export function Write() {
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value)
+    setHasChanged(true)
   }
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value)
+    setHasChanged(true)
   }
 
   return (
@@ -122,7 +131,6 @@ export function Write() {
         {error}
       </>}
       {!isLoading && !error && <>
-        <Button>Save</Button>
         {lastSyncedTime && <>
           Last synced {lastSyncedTime}
         </>}
