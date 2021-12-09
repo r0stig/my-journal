@@ -141,8 +141,11 @@ export function exportStore(): Promise<void> {
         headers: {
           'content-type': 'application/json'
         }
+      }).then(() => {
+        resolve(result)
+      }).catch((err) => {
+        reject(err)
       })
-      resolve(result)
     }
   })
 }

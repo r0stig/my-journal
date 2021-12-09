@@ -65,10 +65,9 @@ export function Write() {
       setContent(entry.content)
       setIsLoading(false)
     }).catch((err) => {
+      // Probably found nothing, that's OK
+      console.warn(err)
       setIsLoading(false)
-      setError('Error fetching entry')
-      toastContext.showToast({ content: 'Hej hopp' })
-      console.error(err)
     })
   }, [day])
 
@@ -82,7 +81,9 @@ export function Write() {
           day,
         }).then(() => {
           setLastSyncedTime(new Date().toISOString())
-          exportStore()
+          exportStore().catch((err) => {
+            toastContext.showToast({ content: 'Failed to sync with backend' })
+          })
         })
       }, 5000)
     }
@@ -99,7 +100,9 @@ export function Write() {
         content,
         day
       })
-      exportStore()
+      exportStore().catch((err) => {
+        toastContext.showToast({ content: 'Failed to sync with backend' })
+      })
     }
     // TODO: When this fails, need to notify the user somehow. Maybe
     // with a global toast?
@@ -132,18 +135,20 @@ export function Write() {
       </>}
       {!isLoading && !error && <>
         {lastSyncedTime && <>
-          Last synced {lastSyncedTime}
+          Last local sync {lastSyncedTime}
         </>}
         <TitleEditor
           ref={titleEditor}
           value={title}
           onKeyDown={handleTitleEditorKeyDown}
           onChange={handleTitleChange}
+          placeholder='Summarize you day in a few words'
         />
         <Editor
           ref={contentEditor}
           value={content}
           onChange={handleContentChange}
+          placeholder='How was your day?'
         />
       </>}
     </Container>
