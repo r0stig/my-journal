@@ -46,7 +46,7 @@ export function Entries() {
             </Date>
           </Header>
           <Content>
-            {maybeShorten(entry.content, 200)}
+            {maybeShorten(entry.content, 100)}
           </Content>
         </EntryCard>
       ))}
