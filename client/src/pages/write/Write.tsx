@@ -1,41 +1,8 @@
 import React from 'react'
-import styled from 'styled-components'
 import { ToastContext } from '../../components/toast/toast'
 import { storeEntry, exportStore, getEntry } from '../../lib/store'
 import { useUnmountOnceWithDeps } from '../../lib/use-unmount-with-deps'
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-`
-
-const TitleEditor = styled.input`
-  font-family: Verdana;
-  font-size: 22px;
-  font-weight: 600;
-  border: 0;
-
-  &:focus {
-    outline: none;
-  }
-`
-
-const Editor = styled.textarea`
-  flex: 1;
-  font-family: Verdana;
-  font-size: 16px;
-  border: 0;
-
-  &:focus {
-    outline: none;
-  }
-`
-
-const Button = styled.button`
-  align-self: flex-start;
-  padding: 4px;
-`
+import { ActionsNav, Container, Editor, Header, HeaderNav, InfoNav, TitleEditor } from './write-styles'
 
 function sync () {
 
@@ -43,9 +10,10 @@ function sync () {
 
 interface Props {
   entryKey: string
+  onBack: () => void
 }
 
-export const Write: React.FC<Props> = ({ entryKey }) => {
+export const Write: React.FC<Props> = ({ entryKey, onBack }) => {
   const [title, setTitle] = React.useState<string>('')
   const [content, setContent] = React.useState<string>('')
   const [lastSyncedTime, setLastSyncedTime] = React.useState<string>('')
@@ -81,7 +49,8 @@ export const Write: React.FC<Props> = ({ entryKey }) => {
           content,
           day: entryKey,
         }).then(() => {
-          setLastSyncedTime(new Date().toISOString())
+
+          setLastSyncedTime(new Date().toLocaleTimeString('sv', { hour: '2-digit', minute: '2-digit', second: '2-digit'}))
           exportStore().catch((err) => {
             toastContext.showToast({ content: 'Failed to sync with backend' })
           })
@@ -126,8 +95,25 @@ export const Write: React.FC<Props> = ({ entryKey }) => {
     setHasChanged(true)
   }
 
+  const handleBackClick = () => {
+    onBack()
+  }
+
   return (
     <Container>
+      <Header>
+        <HeaderNav onClick={handleBackClick}>
+          Back
+        </HeaderNav>
+        <InfoNav>
+          {lastSyncedTime && <>
+            Saved {lastSyncedTime}
+          </>}
+        </InfoNav>
+        <ActionsNav>
+          Remove
+        </ActionsNav>
+      </Header>
       {isLoading && <>
         Loading...
       </>}
@@ -135,9 +121,7 @@ export const Write: React.FC<Props> = ({ entryKey }) => {
         {error}
       </>}
       {!isLoading && !error && <>
-        {lastSyncedTime && <>
-          Last local sync {lastSyncedTime}
-        </>}
+
         <TitleEditor
           ref={titleEditor}
           value={title}

@@ -38,6 +38,10 @@ function App() {
     setTabOpen('write')
   }
 
+  const handleWriteBack = () => {
+    setTabOpen('list')
+  }
+
   return (
     <Toaster>
       <>
@@ -46,8 +50,8 @@ function App() {
         </>}
         {!isLoading && <>
           {tabOpen === 'list' && <Entries onEntryClick={handleEntryClick} />}
-          {tabOpen === 'write' && <Write entryKey={writeDay} />}
-          <TabBar onTabClick={handleTabClick} />
+          {tabOpen === 'write' && <Write entryKey={writeDay} onBack={handleWriteBack} />}
+          {tabOpen !== 'write' && <TabBar onTabClick={handleTabClick} />}
         </>}
       </>
     </Toaster>
