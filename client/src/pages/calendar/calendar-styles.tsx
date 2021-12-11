@@ -3,6 +3,20 @@ import styled, { css } from 'styled-components'
 export const Container = styled.div`
   padding: 10px;
 `
+export const NavigatorContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 5px;
+`
+
+export const Nav = styled.div`
+`
+
+export const Current = styled.div`
+
+`
 
 export const WeekdayContainer = styled.div`
   display: grid;

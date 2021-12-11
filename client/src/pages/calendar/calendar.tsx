@@ -1,6 +1,6 @@
 import React from 'react'
 import { getDay, getDaysInMonth } from 'date-fns'
-import { Container, Day, DaysContainer, WeekdayContainer, WeekdayHeader } from './calendar-styles'
+import { Container, Current, Day, DaysContainer, Nav, NavigatorContainer, WeekdayContainer, WeekdayHeader } from './calendar-styles'
 import { getEntries } from '../../lib/store'
 
 function leftPad(str: string, padding: string, width: number): string {
@@ -11,6 +11,24 @@ function leftPad(str: string, padding: string, width: number): string {
     retStr += padding
   }
   return retStr + str
+}
+
+function getMonthName(month: number): string {
+  switch (month) {
+    case 0: return 'January'
+    case 1: return 'February'
+    case 2: return 'Mars'
+    case 3: return 'April'
+    case 4: return 'May'
+    case 5: return 'June'
+    case 6: return 'July'
+    case 7: return 'August'
+    case 8: return 'September'
+    case 9: return 'October'
+    case 10: return 'November'
+    case 11: return 'December'
+  }
+  return ''
 }
 
 interface Props {
@@ -35,6 +53,24 @@ export const Calendar: React.FC<Props> = ({ onDayClick }) => {
     })
   }, [year, month])
 
+  const handleBackClick = () => {
+    if (month === 0) {
+      setMonth(11)
+      setYear(year-1)
+    } else {
+      setMonth(month-1)
+    }
+  }
+
+  const handleForwardClick = () => {
+    if (month === 11) {
+      setMonth(0)
+      setYear(year+1)
+    } else {
+      setMonth(month+1)
+    }
+  }
+
   const handleDayClick = (e: React.MouseEvent<HTMLDivElement>, day: number) => {
     onDayClick(`${year}-${month+1}-${leftPad(String(day), '0', 2)}`)
   }
@@ -42,6 +78,11 @@ export const Calendar: React.FC<Props> = ({ onDayClick }) => {
   const firstDayOfWeek = getDay(new Date(year, month, 1))
   return (
     <Container>
+      <NavigatorContainer>
+        <Nav onClick={handleBackClick}>Back</Nav>
+        <Current>{getMonthName(month)}, {year}</Current>
+        <Nav onClick={handleForwardClick}>Forward</Nav>
+      </NavigatorContainer>
       <WeekdayContainer>
         <WeekdayHeader>Mon</WeekdayHeader>
         <WeekdayHeader>Tue</WeekdayHeader>
