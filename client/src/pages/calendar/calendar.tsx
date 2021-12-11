@@ -13,7 +13,11 @@ function leftPad(str: string, padding: string, width: number): string {
   return retStr + str
 }
 
-export const Calendar: React.FC<{}> = () => {
+interface Props {
+  onDayClick: (date: string) => void
+}
+
+export const Calendar: React.FC<Props> = ({ onDayClick }) => {
   const [year, setYear] = React.useState<number>(2021)
   const [month, setMonth] = React.useState<number>(11)
   const [days, setDays] = React.useState<Array<{date: number, hasItems: boolean}>>([])
@@ -31,7 +35,11 @@ export const Calendar: React.FC<{}> = () => {
     })
   }, [year, month])
 
- const firstDayOfWeek = getDay(new Date(year, month, 1))
+  const handleDayClick = (e: React.MouseEvent<HTMLDivElement>, day: number) => {
+    onDayClick(`${year}-${month+1}-${leftPad(String(day), '0', 2)}`)
+  }
+
+  const firstDayOfWeek = getDay(new Date(year, month, 1))
   return (
     <Container>
       <WeekdayContainer>
@@ -45,7 +53,10 @@ export const Calendar: React.FC<{}> = () => {
       </WeekdayContainer>
       <DaysContainer startDay={firstDayOfWeek}>
         {days.map((day) => (
-          <Day marked={day.hasItems}>{day.date}</Day>
+          <Day
+            onClick={(e) => handleDayClick(e, day.date)}
+            marked={day.hasItems}
+          >{day.date}</Day>
         ))}
       </DaysContainer>
     </Container>

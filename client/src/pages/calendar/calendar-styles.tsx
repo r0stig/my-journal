@@ -7,7 +7,7 @@ export const Container = styled.div`
 export const WeekdayContainer = styled.div`
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 10px;
+  gap: 15px;
   margin-bottom: 10px;
 `
 
@@ -16,8 +16,9 @@ interface DayProps {
 }
 
 export const Day = styled.div<DayProps>`
+  text-align: center;
   ${props => props.marked && css`
-    font-weight: 600;
+    font-weight: 700;
   `}
 `
 
@@ -32,7 +33,7 @@ export const DaysContainer = styled(WeekdayContainer)<DaysContainerProps>`
 `
 
 export const WeekdayHeader = styled.div`
-
+  text-align: center;
 `
 
 

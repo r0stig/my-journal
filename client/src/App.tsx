@@ -34,6 +34,11 @@ function App() {
     setTabOpen(item)
   }
 
+  const handleDayClick = (day: string) => {
+    setWriteDay(day)
+    setTabOpen('write')
+  }
+
   const handleEntryClick = (day: string) => {
     setWriteDay(day)
     setTabOpen('write')
@@ -50,7 +55,7 @@ function App() {
           Loading...
         </>}
         {!isLoading && <>
-          {tabOpen === 'calendar' && <Calendar />}
+          {tabOpen === 'calendar' && <Calendar onDayClick={handleDayClick} />}
           {tabOpen === 'list' && <Entries onEntryClick={handleEntryClick} />}
           {tabOpen === 'write' && <Write entryKey={writeDay} onBack={handleWriteBack} />}
           {tabOpen !== 'write' && <TabBar onTabClick={handleTabClick} />}
