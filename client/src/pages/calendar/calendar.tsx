@@ -1,5 +1,5 @@
 import React from 'react'
-import { getDay, getDaysInMonth } from 'date-fns'
+import { isSameDay, getDay, getDaysInMonth } from 'date-fns'
 import { Container, Current, Day, DaysContainer, Nav, NavigatorContainer, WeekdayContainer, WeekdayHeader } from './calendar-styles'
 import { getEntries } from '../../lib/store'
 
@@ -38,15 +38,17 @@ interface Props {
 export const Calendar: React.FC<Props> = ({ onDayClick }) => {
   const [year, setYear] = React.useState<number>(2021)
   const [month, setMonth] = React.useState<number>(11)
-  const [days, setDays] = React.useState<Array<{date: number, hasItems: boolean}>>([])
+  const [days, setDays] = React.useState<Array<{date: number, hasItems: boolean, isToday: boolean}>>([])
 
   React.useEffect(() => {
+    const today = new Date()
     getEntries().then((entries) => {
       let days = []
       for (let i = 1; i <= getDaysInMonth(new Date(year, month)); i++) {
         days.push({
           date: i,
-          hasItems: entries.some((entry) => entry.day === `${year}-${month+1}-${leftPad(String(i), '0', 2)}`)
+          hasItems: entries.some((entry) => entry.day === `${year}-${month+1}-${leftPad(String(i), '0', 2)}`),
+          isToday: isSameDay(today, new Date(year, month, i))
         })
       }
       setDays(days)
@@ -97,6 +99,7 @@ export const Calendar: React.FC<Props> = ({ onDayClick }) => {
           <Day
             onClick={(e) => handleDayClick(e, day.date)}
             marked={day.hasItems}
+            today={day.isToday}
           >{day.date}</Day>
         ))}
       </DaysContainer>

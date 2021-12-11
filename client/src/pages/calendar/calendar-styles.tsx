@@ -27,12 +27,16 @@ export const WeekdayContainer = styled.div`
 
 interface DayProps {
   marked?: boolean
+  today?: boolean
 }
 
 export const Day = styled.div<DayProps>`
   text-align: center;
   ${props => props.marked && css`
     font-weight: 700;
+  `}
+  ${props => props.today && css`
+    border: 1px solid #f0f;
   `}
 `
 
