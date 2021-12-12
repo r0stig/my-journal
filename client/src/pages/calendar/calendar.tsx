@@ -81,9 +81,9 @@ export const Calendar: React.FC<Props> = ({ onDayClick }) => {
   return (
     <Container>
       <NavigatorContainer>
-        <Nav onClick={handleBackClick}>Back</Nav>
+        <Nav onClick={handleBackClick}>{'<<'}</Nav>
         <Current>{getMonthName(month)}, {year}</Current>
-        <Nav onClick={handleForwardClick}>Forward</Nav>
+        <Nav onClick={handleForwardClick}>{'>>'}</Nav>
       </NavigatorContainer>
       <WeekdayContainer>
         <WeekdayHeader>Mon</WeekdayHeader>

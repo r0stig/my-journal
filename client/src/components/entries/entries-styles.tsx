@@ -1,7 +1,12 @@
 import styled from 'styled-components'
 
+export const Container = styled.div`
+`
+
 export const EntryCard = styled.div`
+  margin: 10px;
   padding: 10px;
+  background-color: #fff;
   border-bottom: 1px solid #ddd;
 `
 

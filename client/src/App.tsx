@@ -6,6 +6,7 @@ import { initStore } from './lib/store'
 import { TabBar, Tabs } from './components/tab-bar/tab-bar'
 import { Toaster } from './components/toast/toast'
 import { Calendar } from './pages/calendar/calendar'
+import { Container } from './app-styles'
 
 function getTodayKey() {
   return new Date().toLocaleDateString('sv', { year: 'numeric', month: 'numeric', day: 'numeric'})
@@ -50,7 +51,7 @@ function App() {
 
   return (
     <Toaster>
-      <>
+      <Container>
         {isLoading && <>
           Loading...
         </>}
@@ -60,7 +61,7 @@ function App() {
           {tabOpen === 'write' && <Write entryKey={writeDay} onBack={handleWriteBack} />}
           {tabOpen !== 'write' && <TabBar onTabClick={handleTabClick} />}
         </>}
-      </>
+      </Container>
     </Toaster>
   )
 }

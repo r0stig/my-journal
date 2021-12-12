@@ -1,11 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Entry, getEntries } from '../../lib/store'
-import { Content, Date, EntryCard, Header, Title } from './entries-styles'
-
-const Container = styled.div`
-
-`
+import { Container, Content, Date, EntryCard, Header, Title } from './entries-styles'
 
 function maybeShorten(str: string, max: number): string {
   if (!str) return str

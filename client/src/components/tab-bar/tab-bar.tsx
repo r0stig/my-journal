@@ -14,9 +14,21 @@ export const TabBar: React.FC<Props> = ({ onTabClick }) => {
 
   return (
     <Container>
-      <TabItem onClick={(e) => handleTabClick(e, 'calendar')}>Calendar</TabItem>
-      <TabItem onClick={(e) => handleTabClick(e, 'write')}>Write</TabItem>
-      <TabItem onClick={(e) => handleTabClick(e, 'list')}>List</TabItem>
+      <TabItem size='normal' onClick={(e) => handleTabClick(e, 'calendar')}>
+        <span className='material-icons'>
+          event
+        </span>
+      </TabItem>
+      <TabItem size='large' onClick={(e) => handleTabClick(e, 'write')}>
+      <span className='material-icons'>
+        add
+        </span>
+      </TabItem>
+      <TabItem size='normal' onClick={(e) => handleTabClick(e, 'list')}>
+        <span className='material-icons'>
+          list
+        </span>
+      </TabItem>
     </Container>
   )
 }

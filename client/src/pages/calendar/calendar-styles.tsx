@@ -1,7 +1,9 @@
 import styled, { css } from 'styled-components'
 
 export const Container = styled.div`
+  margin: 10px;
   padding: 10px;
+  background-color: #fff;
 `
 export const NavigatorContainer = styled.div`
   display: flex;
