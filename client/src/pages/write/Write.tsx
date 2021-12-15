@@ -110,9 +110,6 @@ export const Write: React.FC<Props> = ({ entryKey, onBack }) => {
             Saved {lastSyncedTime}
           </>}
         </InfoNav>
-        <ActionsNav>
-          Remove
-        </ActionsNav>
       </Header>
       {isLoading && <>
         Loading...
