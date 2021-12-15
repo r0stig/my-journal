@@ -2,6 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import { Entry, getEntries } from '../../lib/store'
 import { Container, Content, Date, EntryCard, Header, Title } from './entries-styles'
+import { isBefore, parseISO } from 'date-fns'
 
 function maybeShorten(str: string, max: number): string {
   if (!str) return str
@@ -21,6 +22,12 @@ export const Entries: React.FC<Props> = ({ onEntryClick }) => {
 
   React.useEffect(() => {
     getEntries().then((entries) => {
+      entries.sort((a, b) => {
+        if (isBefore(parseISO(a.day), parseISO(b.day))) {
+          return 1
+        }
+        return -1
+      })
       setEntries(entries)
       console.log('set entries', entries)
     }).catch((err) => {
