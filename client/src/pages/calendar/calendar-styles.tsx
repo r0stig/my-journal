@@ -14,6 +14,7 @@ export const NavigatorContainer = styled.div`
 `
 
 export const Nav = styled.div`
+  cursor: pointer;
 `
 
 export const Current = styled.div`
@@ -27,18 +28,32 @@ export const WeekdayContainer = styled.div`
   margin-bottom: 10px;
 `
 
+export const DayContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`
+
 interface DayProps {
   marked?: boolean
   today?: boolean
 }
 
 export const Day = styled.div<DayProps>`
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  box-sizing: border-box;
+  cursor: pointer;
+
   ${props => props.marked && css`
     font-weight: 700;
   `}
   ${props => props.today && css`
-    border: 1px solid #f0f;
+    background-color: #ddd;
+    text-align: center;
+    border-radius: 50%;
   `}
 `
 
@@ -47,7 +62,7 @@ interface DaysContainerProps {
 }
 
 export const DaysContainer = styled(WeekdayContainer)<DaysContainerProps>`
-  ${Day}:first-child {
+  ${DayContainer}:first-child {
     grid-column: ${props => props.startDay};
   }
 `

@@ -27,20 +27,22 @@ export const TabItem = styled.a<TabItemProps>`
   ${props => props.size === 'normal' ? css`
     width: 75px;
     height: 75px;
+    background-color: #ddd;
   ` : css`
     width: 90px;
     height: 90px;
+    background-color: #1B593C;
   `}
   border-radius: 50%;
-  background-color: #ddd;
+
 
   &:hover {
-    background-color: #ccc;
+    background-color: ${props => props.size === 'large' ? '#246848' : '#ccc'};;
     cursor: pointer;
   }
 
   & span {
     font-size: 35px;
-    color: #555;
+    color: ${props => props.size === 'large' ? '#fff' : '#555'};
   }
 `

@@ -1,7 +1,8 @@
 import React from 'react'
 import { isSameDay, getDay, getDaysInMonth } from 'date-fns'
-import { Container, Current, Day, DaysContainer, Nav, NavigatorContainer, WeekdayContainer, WeekdayHeader } from './calendar-styles'
+import { Container, Current, Day, DayContainer, DaysContainer, Nav, NavigatorContainer, WeekdayContainer, WeekdayHeader } from './calendar-styles'
 import { getEntries } from '../../lib/store'
+import { getMonthName } from '../../lib/month-names'
 
 function leftPad(str: string, padding: string, width: number): string {
   if (!str) return str
@@ -11,24 +12,6 @@ function leftPad(str: string, padding: string, width: number): string {
     retStr += padding
   }
   return retStr + str
-}
-
-function getMonthName(month: number): string {
-  switch (month) {
-    case 0: return 'January'
-    case 1: return 'February'
-    case 2: return 'Mars'
-    case 3: return 'April'
-    case 4: return 'May'
-    case 5: return 'June'
-    case 6: return 'July'
-    case 7: return 'August'
-    case 8: return 'September'
-    case 9: return 'October'
-    case 10: return 'November'
-    case 11: return 'December'
-  }
-  return ''
 }
 
 interface Props {
@@ -81,9 +64,17 @@ export const Calendar: React.FC<Props> = ({ onDayClick }) => {
   return (
     <Container>
       <NavigatorContainer>
-        <Nav onClick={handleBackClick}>{'<<'}</Nav>
-        <Current>{getMonthName(month)}, {year}</Current>
-        <Nav onClick={handleForwardClick}>{'>>'}</Nav>
+        <Nav onClick={handleBackClick}>
+          <span className='material-icons'>
+            chevron_left
+          </span>
+        </Nav>
+        <Current>{getMonthName(month)} {year}</Current>
+        <Nav onClick={handleForwardClick}>
+          <span className='material-icons'>
+            chevron_right
+          </span>
+        </Nav>
       </NavigatorContainer>
       <WeekdayContainer>
         <WeekdayHeader>Mon</WeekdayHeader>
@@ -96,11 +87,15 @@ export const Calendar: React.FC<Props> = ({ onDayClick }) => {
       </WeekdayContainer>
       <DaysContainer startDay={firstDayOfWeek}>
         {days.map((day) => (
-          <Day
-            onClick={(e) => handleDayClick(e, day.date)}
-            marked={day.hasItems}
-            today={day.isToday}
-          >{day.date}</Day>
+          <DayContainer>
+            <Day
+              onClick={(e) => handleDayClick(e, day.date)}
+              marked={day.hasItems}
+              today={day.isToday}
+            >
+              {day.date}
+            </Day>
+          </DayContainer>
         ))}
       </DaysContainer>
     </Container>

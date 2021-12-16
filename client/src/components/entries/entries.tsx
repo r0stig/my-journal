@@ -1,8 +1,9 @@
 import React from 'react'
 import styled from 'styled-components'
 import { Entry, getEntries } from '../../lib/store'
-import { Container, Content, Date, EntryCard, Header, Title } from './entries-styles'
-import { isBefore, parseISO } from 'date-fns'
+import { Container, Content, Date, EntryCard, Header, Title, DateContainer, ContentContainer, Month } from './entries-styles'
+import { isBefore, parseISO, getDate, getMonth } from 'date-fns'
+import { getShortMonthName } from '../../lib/month-names'
 
 function maybeShorten(str: string, max: number): string {
   if (!str) return str
@@ -40,26 +41,40 @@ export const Entries: React.FC<Props> = ({ onEntryClick }) => {
     onEntryClick(entry.day)
   }
 
+
+
   return (
     <Container>
       {error && <>
         {error}
       </>}
-      {entries.map((entry) => (
-        <EntryCard key={entry.day} onClick={(e) => handleEntryCardClick(e, entry)}>
-          <Header>
-            <Title>
-              {entry.title}
-            </Title>
-            <Date>
-              {entry.day}
-            </Date>
-          </Header>
-          <Content>
-            {maybeShorten(entry.content, 100)}
-          </Content>
-        </EntryCard>
-      ))}
+      {entries.map((entry) => {
+        const date = parseISO(entry.day)
+        const day = getDate(date)
+        const monthName = getShortMonthName(getMonth(date))
+        return (
+          <EntryCard key={entry.day} onClick={(e) => handleEntryCardClick(e, entry)}>
+            <DateContainer>
+              <Date>
+                {day}
+              </Date>
+              <Month>
+                {monthName}
+              </Month>
+            </DateContainer>
+            <ContentContainer>
+              <Header>
+                <Title>
+                  {entry.title}
+                </Title>
+              </Header>
+              <Content>
+                {maybeShorten(entry.content, 100)}
+              </Content>
+            </ContentContainer>
+          </EntryCard>
+        )
+      })}
     </Container>
   )
 }
