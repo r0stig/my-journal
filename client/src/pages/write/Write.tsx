@@ -29,9 +29,11 @@ export const Write: React.FC<Props> = ({ entryKey, onBack }) => {
   React.useEffect(() => {
     setIsLoading(true)
     getEntry(entryKey).then((entry) => {
+      if (entry) {
+        setTitle(entry.title)
+        setContent(entry.content)
+      }
       console.log('get entry ressult', entry)
-      setTitle(entry.title)
-      setContent(entry.content)
       setIsLoading(false)
     }).catch((err) => {
       // Probably found nothing, that's OK
@@ -74,8 +76,6 @@ export const Write: React.FC<Props> = ({ entryKey, onBack }) => {
         toastContext.showToast({ content: 'Failed to sync with backend' })
       })
     }
-    // TODO: When this fails, need to notify the user somehow. Maybe
-    // with a global toast?
   }, [title, content, hasChanged])
 
   const handleTitleEditorKeyDown = (e: React.KeyboardEvent) => {

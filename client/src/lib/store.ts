@@ -184,7 +184,7 @@ export function storeEntry(entry: Entry): Promise<void> {
   })
 }
 
-export function getEntry(day: string): Promise<Entry> {
+export function getEntry(day: string): Promise<Entry | undefined> {
   return new Promise((resolve, reject) => {
     /*
     const entry = memoryDb.find((entry) => entry.day === day)
@@ -216,11 +216,13 @@ export function getEntry(day: string): Promise<Entry> {
     getAllRequest.onsuccess = async (event: any) => {
       const result = event.target.result
       console.log('get reuslt', result)
-
+      if (result !== undefined) {
         const decrypted = await decrypt(dbKey, result.payload)
         const entry: Entry = JSON.parse(decrypted)
         resolve(entry)
-
+      } else {
+        resolve(undefined)
+      }
     }
 
   })
