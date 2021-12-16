@@ -87,7 +87,7 @@ async function decrypt(key: CryptoKey, data: string): Promise<string> {
   }
 }
 
-export function initStore(): Promise<void> {
+export function initStore(password: string): Promise<void> {
   return new Promise((resolve, reject) => {
 
     const request = window.indexedDB.open(DB_NAME, DB_VERSION)
@@ -104,21 +104,20 @@ export function initStore(): Promise<void> {
 
     request.onsuccess = (event: any) => {
       db = event.target.result
-      resolve()
+
+      //getKey('abc123').then(async (key) => {
+      getKey(password).then(async (key) => {
+        dbKey = key
+
+        const savedDb = window.localStorage.getItem(DB_NAME)
+        if (savedDb) {
+          const decrypted = await decrypt(key, savedDb)
+          memoryDb = JSON.parse(decrypted)
+        }
+
+        resolve()
+      })
     }
-
-
-    getKey('abc123').then(async (key) => {
-      dbKey = key
-
-      const savedDb = window.localStorage.getItem(DB_NAME)
-      if (savedDb) {
-        const decrypted = await decrypt(key, savedDb)
-        memoryDb = JSON.parse(decrypted)
-      }
-
-      resolve()
-    })
   })
 }
 
