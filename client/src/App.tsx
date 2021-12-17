@@ -8,6 +8,7 @@ import { Toaster } from './components/toast/toast'
 import { Calendar } from './pages/calendar/calendar'
 import { Container } from './app-styles'
 import { LoginModal } from './components/login-modal/login-modal'
+import { Menu } from './components/menu/menu'
 
 function getTodayKey() {
   return new Date().toLocaleDateString('sv', { year: 'numeric', month: 'numeric', day: 'numeric'})
@@ -72,6 +73,7 @@ function App() {
             Loading...
           </>}
           {!isLoading && <>
+            <Menu />
             {tabOpen === 'calendar' && <Calendar onDayClick={handleDayClick} />}
             {tabOpen === 'list' && <Entries onEntryClick={handleEntryClick} />}
             {tabOpen === 'write' && <Write entryKey={writeDay} onBack={handleWriteBack} />}
