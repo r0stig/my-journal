@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal } from '../modal/modal'
-import { Input, Label, Button, Container } from '../login-modal/login-modal-styles'
+import { Input, Label, Button, Container, ButtonGroup } from '../login-modal/login-modal-styles'
 import { useStore } from '../../lib/store'
 
 interface Props {
@@ -38,12 +38,21 @@ export const ChangePasswordModal: React.FC<Props> = ({ onClose }) => {
             value={password}
             onChange={handlePasswordChange}
           />
-          <Button type='button' onClick={handleCancelClick}>
-            Cancel
-          </Button>
-          <Button type='submit'>
-            {isLoading ? 'Loading...' : 'Change password'}
-          </Button>
+          <ButtonGroup>
+            <Button
+              displayType='secondary'
+              type='button'
+              onClick={handleCancelClick}
+            >
+              Cancel
+            </Button>
+            <Button
+              displayType='primary'
+              type='submit'
+            >
+              {isLoading ? 'Loading...' : 'Save'}
+            </Button>
+          </ButtonGroup>
         </form>
       </Container>
     </Modal>

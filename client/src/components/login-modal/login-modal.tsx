@@ -27,7 +27,7 @@ export const LoginModal: React.FC<Props> = ({ onLogin }) => {
             value={password}
             onChange={handlePasswordChange}
           />
-          <Button type='submit'>Sign in</Button>
+          <Button displayType='primary' type='submit'>Sign in</Button>
         </form>
       </Container>
     </Modal>
