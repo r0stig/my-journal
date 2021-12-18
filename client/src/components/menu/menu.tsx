@@ -2,6 +2,7 @@ import React from 'react'
 import { MenuContainer, TopBar, MenuWrapper, MenuButton, MenuItem, MenuHeader } from './menu-styles'
 import { useAccount } from '../../lib/use-account'
 import { useStore } from '../../lib/store'
+import { ChangePasswordModal } from '../change-password-modal/change-password-modal'
 
 interface Props {
 
@@ -9,8 +10,9 @@ interface Props {
 
 export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false)
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = React.useState<boolean>(false)
   const { signOut } = useAccount()
-  const { changePassword, resetStore } = useStore()
+  const { resetStore } = useStore()
 
   const handleMenuButtoonClick = () => {
     setIsOpen(true)
@@ -25,7 +27,8 @@ export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => 
   }
 
   const handleChangePasswordClick = () => {
-    changePassword('abc123')
+    setIsOpen(false)
+    setIsChangePasswordModalOpen(true)
   }
 
   const handleLockClick = () => {
@@ -35,6 +38,7 @@ export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => 
 
   return (
     <>
+      {isChangePasswordModalOpen && <ChangePasswordModal />}
       <TopBar>
         <MenuButton onClick={handleMenuButtoonClick} className='material-icons'>
             menu
