@@ -1,6 +1,6 @@
 import React from 'react'
 import { ToastContext } from '../../components/toast/toast'
-import { storeEntry, exportStore, getEntry } from '../../lib/store'
+import { useStore } from '../../lib/store'
 import { useUnmountOnceWithDeps } from '../../lib/use-unmount-with-deps'
 import { ActionsNav, Container, Editor, Header, HeaderNav, InfoNav, TitleEditor } from './write-styles'
 
@@ -22,6 +22,8 @@ export const Write: React.FC<Props> = ({ entryKey, onBack }) => {
   const [error, setError] = React.useState<string>('')
 
   const toastContext = React.useContext(ToastContext)
+
+  const { storeEntry, exportStore, getEntry} = useStore()
 
   const titleEditor = React.useRef<HTMLInputElement>(null)
   const contentEditor = React.useRef<HTMLTextAreaElement>(null)

@@ -2,35 +2,26 @@ import React from 'react'
 import logo from './logo.svg'
 import { Write } from './pages/write/Write'
 import { Entries } from './components/entries/entries'
-import { initStore } from './lib/store'
 import { TabBar, Tabs } from './components/tab-bar/tab-bar'
 import { Toaster } from './components/toast/toast'
 import { Calendar } from './pages/calendar/calendar'
 import { Container } from './app-styles'
 import { LoginModal } from './components/login-modal/login-modal'
 import { Menu } from './components/menu/menu'
+import { useAccount } from './lib/use-account'
+import { DataStorage, useStore } from './lib/store'
 
 function getTodayKey() {
   return new Date().toLocaleDateString('sv', { year: 'numeric', month: 'numeric', day: 'numeric'})
 }
 
 function App() {
-  const [isSignedIn, setIsSignedIn] = React.useState<boolean>(false)
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [tabOpen, setTabOpen] = React.useState<Tabs>('list')
   const [writeDay, setWriteDay] = React.useState<string>(getTodayKey())
 
-  /*
-  React.useEffect(() => {
-    setIsLoading(true)
-    initStore().then(() => {
-      setIsLoading(false)
-    }).catch((err) => {
-      console.error(err)
-      setIsLoading(false)
-    })
-  }, [])
-  */
+  const { initStore } = useStore()
+  const { signIn, isSignedIn } = useAccount()
 
   const handleTabClick = (item: Tabs) => {
     if (item === 'write') {
@@ -57,7 +48,8 @@ function App() {
   const handleLogin = (password: string) => {
     setIsLoading(true)
     initStore(password).then(() => {
-      setIsSignedIn(true)
+      signIn()
+      // setIsSignedIn(true)
       setIsLoading(false)
     }).catch((err) => {
       console.error(err)
@@ -73,7 +65,7 @@ function App() {
             Loading...
           </>}
           {!isLoading && <>
-            <Menu />
+            {tabOpen !== 'write' && <Menu />}
             {tabOpen === 'calendar' && <Calendar onDayClick={handleDayClick} />}
             {tabOpen === 'list' && <Entries onEntryClick={handleEntryClick} />}
             {tabOpen === 'write' && <Write entryKey={writeDay} onBack={handleWriteBack} />}

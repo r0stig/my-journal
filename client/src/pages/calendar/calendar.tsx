@@ -1,8 +1,8 @@
 import React from 'react'
 import { isSameDay, getDay, getDaysInMonth } from 'date-fns'
 import { Container, Current, Day, DayContainer, DaysContainer, Nav, NavigatorContainer, WeekdayContainer, WeekdayHeader } from './calendar-styles'
-import { getEntries } from '../../lib/store'
 import { getMonthName } from '../../lib/month-names'
+import { useStore } from '../../lib/store'
 
 function leftPad(str: string, padding: string, width: number): string {
   if (!str) return str
@@ -22,6 +22,8 @@ export const Calendar: React.FC<Props> = ({ onDayClick }) => {
   const [year, setYear] = React.useState<number>(2021)
   const [month, setMonth] = React.useState<number>(11)
   const [days, setDays] = React.useState<Array<{date: number, hasItems: boolean, isToday: boolean}>>([])
+
+  const { getEntries } = useStore()
 
   React.useEffect(() => {
     const today = new Date()

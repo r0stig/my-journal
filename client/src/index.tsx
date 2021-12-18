@@ -4,10 +4,13 @@ import './index.css';
 import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
+import { DataStorage } from './lib/store';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <DataStorage>
+      <App />
+    </DataStorage>
   </React.StrictMode>,
   document.getElementById('root')
 );

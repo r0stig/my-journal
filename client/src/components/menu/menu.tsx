@@ -1,5 +1,6 @@
 import React from 'react'
 import { MenuContainer, TopBar, MenuWrapper, MenuButton, MenuItem, MenuHeader } from './menu-styles'
+import { useAccount } from '../../lib/use-account'
 
 interface Props {
 
@@ -7,6 +8,7 @@ interface Props {
 
 export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false)
+  const { signOut } = useAccount()
 
   const handleMenuButtoonClick = () => {
     setIsOpen(true)
@@ -18,6 +20,10 @@ export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => 
 
   const handleMenuClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
+  }
+
+  const handleLockClick = () => {
+    signOut()
   }
 
   return (
@@ -35,7 +41,7 @@ export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => 
           <MenuItem>
             Change password
           </MenuItem>
-          <MenuItem>
+          <MenuItem onClick={handleLockClick}>
             Lock
           </MenuItem>
         </MenuContainer>

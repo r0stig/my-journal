@@ -1,6 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Entry, getEntries } from '../../lib/store'
+import { Entry, useStore } from '../../lib/store'
 import { Container, Content, Date, EntryCard, Header, Title, DateContainer, ContentContainer, Month } from './entries-styles'
 import { isBefore, parseISO, getDate, getMonth } from 'date-fns'
 import { getShortMonthName } from '../../lib/month-names'
@@ -20,6 +20,8 @@ interface Props {
 export const Entries: React.FC<Props> = ({ onEntryClick }) => {
   const [entries, setEntries] = React.useState<Entry[]>([])
   const [error, setError] = React.useState<string>('')
+
+  const { getEntries } = useStore()
 
   React.useEffect(() => {
     getEntries().then((entries) => {
