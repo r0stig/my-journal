@@ -19,7 +19,7 @@ export const LoginModal: React.FC<Props> = ({ onLogin }) => {
   }
 
   return (
-    <Modal>
+    <Modal onClose={() => {}}>
       <Container>
         <Label>Password</Label>
         <form onSubmit={handleFormSubmit}>

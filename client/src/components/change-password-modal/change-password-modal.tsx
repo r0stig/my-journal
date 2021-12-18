@@ -4,15 +4,20 @@ import { Input, Label, Button, Container } from '../login-modal/login-modal-styl
 import { useStore } from '../../lib/store'
 
 interface Props {
+  onClose: () => void
 }
 
-export const ChangePasswordModal: React.FC<Props> = ({ }) => {
+export const ChangePasswordModal: React.FC<Props> = ({ onClose }) => {
   const [password, setPassword] = React.useState<string>('abc123')
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const { changePassword } = useStore()
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value)
+  }
+
+  const handleCancelClick = () => {
+    onClose()
   }
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -25,14 +30,17 @@ export const ChangePasswordModal: React.FC<Props> = ({ }) => {
   }
 
   return (
-    <Modal>
+    <Modal onClose={onClose}>
       <Container>
-        <Label>Password</Label>
+        <Label>New password</Label>
         <form onSubmit={handleFormSubmit}>
           <Input
             value={password}
             onChange={handlePasswordChange}
           />
+          <Button type='button' onClick={handleCancelClick}>
+            Cancel
+          </Button>
           <Button type='submit'>
             {isLoading ? 'Loading...' : 'Change password'}
           </Button>

@@ -31,6 +31,10 @@ export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => 
     setIsChangePasswordModalOpen(true)
   }
 
+  const handleChangePasswordModalClose = () => {
+    setIsChangePasswordModalOpen(false)
+  }
+
   const handleLockClick = () => {
     signOut()
     resetStore()
@@ -38,7 +42,7 @@ export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => 
 
   return (
     <>
-      {isChangePasswordModalOpen && <ChangePasswordModal />}
+      {isChangePasswordModalOpen && <ChangePasswordModal onClose={handleChangePasswordModalClose} />}
       <TopBar>
         <MenuButton onClick={handleMenuButtoonClick} className='material-icons'>
             menu
