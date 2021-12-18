@@ -22,6 +22,7 @@ export const DateContainer = styled.div`
 `
 
 export const ContentContainer = styled.div`
+  overflow: hidden;
 
 `
 
@@ -30,6 +31,7 @@ export const Header = styled.div`
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-end;
+  text-overflow: ellipsis;
 `
 
 export const Title = styled.div`

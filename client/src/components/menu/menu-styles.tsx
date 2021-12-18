@@ -6,6 +6,7 @@ export const TopBar = styled.div`
   padding: 10px 15px;
   display: flex;
   align-items: center;
+  box-sizing: border-box;
 `
 
 export const MenuButton = styled.div`
