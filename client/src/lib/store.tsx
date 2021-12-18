@@ -12,8 +12,6 @@ type EncryptedEntry = {
   payload: any
 }
 
-let memoryDb: Entry[] = []
-
 const DB_NAME = 'my-journal'
 const DB_VERSION = 1
 const ENTRIES_OBJECT_STORE = "entries"
@@ -62,13 +60,6 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
         //getKey('abc123').then(async (key) => {
         getKey(password).then(async (key) => {
           dbKey.current = key
-
-          const savedDb = window.localStorage.getItem(DB_NAME)
-          if (savedDb) {
-            const decrypted = await decrypt(key, savedDb)
-            memoryDb = JSON.parse(decrypted)
-          }
-
           resolve()
         })
       }
@@ -89,30 +80,6 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
         return reject(new Error('No key provided'))
       }
       console.log('store...')
-
-      const curEntry = memoryDb.find((e) => e.day === entry.day)
-      if (curEntry) {
-        memoryDb = memoryDb.map((e) => {
-          if (e.day === entry.day) {
-            return entry
-          }
-          return e
-        })
-      } else {
-        memoryDb = [
-          ...memoryDb,
-          entry
-        ]
-      }
-
-      const data = await encrypt(dbKey.current, JSON.stringify(memoryDb))
-      // console.log('encrypted to save', data, JSON.stringify(memoryDb))
-      window.localStorage.setItem(DB_NAME, data)
-
-
-      //resolve()
-
-
 
       console.log('add thingy to database')
       const encryptedEntry = await encrypt(dbKey.current, JSON.stringify(entry))
@@ -153,14 +120,6 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
       if (!db.current) {
         return reject(new Error('No databaes'))
       }
-      /*
-      const entry = memoryDb.find((entry) => entry.day === day)
-      if (entry) {
-        resolve(entry)
-      } else {
-        reject(new Error('Not found'))
-      }
-      */
 
       const transaction = db.current.transaction([ENTRIES_OBJECT_STORE], "readwrite")
 
@@ -203,7 +162,6 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
       if (!db.current) {
         return reject(new Error('No databaes'))
       }
-      //resolve(JSON.parse(JSON.stringify(memoryDb)))
 
       const transaction = db.current.transaction([ENTRIES_OBJECT_STORE], "readwrite")
 
