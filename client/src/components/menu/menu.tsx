@@ -10,7 +10,7 @@ interface Props {
 export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => {
   const [isOpen, setIsOpen] = React.useState<boolean>(false)
   const { signOut } = useAccount()
-  const { resetStore } = useStore()
+  const { changePassword, resetStore } = useStore()
 
   const handleMenuButtoonClick = () => {
     setIsOpen(true)
@@ -22,6 +22,10 @@ export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => 
 
   const handleMenuClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation()
+  }
+
+  const handleChangePasswordClick = () => {
+    changePassword('abc123')
   }
 
   const handleLockClick = () => {
@@ -41,7 +45,7 @@ export const Menu: React.FC<React.PropsWithChildren<Props>> = ({ children }) => 
           <MenuHeader>
             My journal
           </MenuHeader>
-          <MenuItem>
+          <MenuItem onClick={handleChangePasswordClick}>
             Change password
           </MenuItem>
           <MenuItem onClick={handleLockClick}>

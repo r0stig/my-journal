@@ -20,18 +20,22 @@ type StoreContextProps = {
   initStore: (password: string) => Promise<void>
   resetStore: () => void,
   storeEntry: (entry: Entry) => Promise<void>
+  storeEntries: (entries: Entry[]) => Promise<void>
   getEntry: (day: string) => Promise<Entry | undefined>
   getEntries: () => Promise<Entry[]>
   exportStore: () => Promise<void>
+  changePassword: (newPassword: string) => Promise<void>
 }
 
 const StoreContext = React.createContext<StoreContextProps>({
   initStore: () => Promise.reject(new Error('Not implemented')),
   resetStore: () => {},
   storeEntry: () => Promise.reject(new Error('Not implemented')),
+  storeEntries: () => Promise.reject(new Error('Not implemented')),
   getEntry: () => Promise.reject(new Error('Not implemented')),
   getEntries: () => Promise.reject(new Error('Not implemented')),
-  exportStore: () => Promise.reject(new Error('Not implemented'))
+  exportStore: () => Promise.reject(new Error('Not implemented')),
+  changePassword: () => Promise.reject(new Error('Not implemented'))
 })
 
 export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
@@ -90,7 +94,7 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
       }
 
       transaction.oncomplete = () => {
-
+        resolve()
       }
 
       const entriesObjectStore = transaction.objectStore(ENTRIES_OBJECT_STORE)
@@ -109,9 +113,66 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
         reject(new Error('Error putting data: ' + event.target.error))
       }
       putRequest.onsuccess = () => {
+        // resolve()
+      }
+
+    })
+  }
+
+  const storeEntries = (entries: Entry[]): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+      if (!db.current) {
+        return reject(new Error('No databaes'))
+      }
+      if (!dbKey.current) {
+        return reject(new Error('No key provided'))
+      }
+      console.log('store...', entries)
+
+      const encryptedEntries: EncryptedEntry[] = []
+      await Promise.all(entries.map(async (entry) => {
+        if (!dbKey.current) {
+          return reject(new Error('No key provided'))
+        }
+        encryptedEntries.push({
+          day: entry.day,
+          payload: await encrypt(dbKey.current, JSON.stringify(entry))
+        })
+      }))
+
+      console.log('encrup entries', encryptedEntries)
+
+      const transaction = db.current.transaction([ENTRIES_OBJECT_STORE], "readwrite")
+
+      transaction.onerror = (event) => {
+        reject(new Error('Error creating transaction'))
+      }
+
+      transaction.oncomplete = () => {
         resolve()
       }
 
+      encryptedEntries.forEach((encryptedEntry) => {
+        //return new Promise(async (resolve, reject) => {
+        if (!dbKey.current) {
+          return reject('No key provided')
+        }
+        const entriesObjectStore = transaction.objectStore(ENTRIES_OBJECT_STORE)
+        console.log('doing add...')
+
+
+        console.log('before put..', encryptedEntry)
+        const putRequest = entriesObjectStore.put(encryptedEntry)
+        /*
+        putRequest.onerror = (event: any) => {
+          reject(new Error('Error putting data: ' + event.target.error))
+        }
+        putRequest.onsuccess = () => {
+          resolve()
+        }
+        */
+      //})
+      })
     })
   }
 
@@ -240,8 +301,16 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
           reject(err)
         })
       }
-
     })
+  }
+
+  const changePassword = async (newPassword: string) => {
+    const newKey = await getKey(newPassword)
+    // First fetch with old key
+    const entries = await getEntries()
+    dbKey.current = newKey
+    // Restore all entries with new key
+    await storeEntries(entries)
   }
 
   return (
@@ -249,9 +318,11 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
       initStore,
       resetStore,
       storeEntry,
+      storeEntries,
       getEntry,
       getEntries,
-      exportStore
+      exportStore,
+      changePassword
     }}>
       {children}
     </StoreContext.Provider>

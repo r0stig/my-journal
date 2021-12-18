@@ -73,6 +73,8 @@ export const Write: React.FC<Props> = ({ entryKey, onBack }) => {
         title,
         content,
         day: entryKey
+      }).catch(() => {
+        toastContext.showToast({ content: 'Failed to save entry' })
       })
       exportStore().catch((err) => {
         toastContext.showToast({ content: 'Failed to sync with backend' })
