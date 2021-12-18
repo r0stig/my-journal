@@ -20,6 +20,7 @@ const ENTRIES_OBJECT_STORE = "entries"
 
 type StoreContextProps = {
   initStore: (password: string) => Promise<void>
+  resetStore: () => void,
   storeEntry: (entry: Entry) => Promise<void>
   getEntry: (day: string) => Promise<Entry | undefined>
   getEntries: () => Promise<Entry[]>
@@ -28,6 +29,7 @@ type StoreContextProps = {
 
 const StoreContext = React.createContext<StoreContextProps>({
   initStore: () => Promise.reject(new Error('Not implemented')),
+  resetStore: () => {},
   storeEntry: () => Promise.reject(new Error('Not implemented')),
   getEntry: () => Promise.reject(new Error('Not implemented')),
   getEntries: () => Promise.reject(new Error('Not implemented')),
@@ -71,6 +73,11 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
         })
       }
     })
+  }
+
+  const resetStore = () => {
+    db.current = undefined
+    dbKey.current = undefined
   }
 
   const storeEntry = (entry: Entry): Promise<void> => {
@@ -282,6 +289,7 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
   return (
     <StoreContext.Provider value={{
       initStore,
+      resetStore,
       storeEntry,
       getEntry,
       getEntries,
