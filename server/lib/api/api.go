@@ -1,19 +1,25 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 )
+
+var jwtSecret []byte
 
 type API struct {
 	logger *zap.SugaredLogger
 }
 
 func NewAPI(logger *zap.SugaredLogger) *API {
+	jwtSecret = []byte("abc123")
 	return &API{
 		logger,
 	}
@@ -25,6 +31,7 @@ func (api API) Start() {
 	h := &handler{
 		logger: api.logger,
 	}
+	r.HandleFunc("/login", h.login).Methods(http.MethodPost)
 	r.HandleFunc("/store", h.storeDatabaseHandler)
 	//.
 	//Methods(http.MethodPut, http.MethodOptions)
@@ -33,7 +40,40 @@ func (api API) Start() {
 
 	http.Handle("/", r)
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), nil)
+}
+
+type LoginResult struct {
+	Token string `json:"token"`
+}
+
+func (h handler) login(w http.ResponseWriter, r *http.Request) {
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+	fmt.Printf("asdasd username %s pw %s\n", username, password)
+	fmt.Printf("Form %v\n", r.PostForm)
+	/*
+		if username != "r0stig" || password != "abc123" {
+			w.WriteHeader(http.StatusForbidden)
+			return
+		}
+	*/
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"username": username,
+	})
+
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		h.logger.Warnf("Error signing token: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("content-type", "application/json")
+	json.NewEncoder(w).Encode(LoginResult{
+		Token: tokenString,
+	})
 }
 
 func (h handler) storeDatabaseHandler(w http.ResponseWriter, r *http.Request) {
@@ -44,27 +84,70 @@ func (h handler) storeDatabaseHandler(w http.ResponseWriter, r *http.Request) {
 		h.logger.Debug("Sending options...")
 		return
 	}
-	h.logger.Debug("not options...")
-	file, err := os.Create("./contents.json")
+
+	authHeader := r.Header.Get("Authorization")
+
+	token, err := jwt.Parse(authHeader, func(token *jwt.Token) (interface{}, error) {
+		// Don't forget to validate the alg is what you expect:
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return jwtSecret, nil
+	})
 	if err != nil {
+		h.logger.Warnf("Error parsing JWT token: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	defer file.Close()
 
-	data, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		username := claims["username"]
+
+		if r.Method == http.MethodGet {
+			file, err := os.Open(fmt.Sprintf("./%s.json", username))
+			if err != nil {
+				h.logger.Warnf("Error opening file %v", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			defer file.Close()
+
+			data, err := ioutil.ReadAll(file)
+			if err != nil {
+				h.logger.Warnf("Error reading file %v", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			w.Write(data)
+			w.WriteHeader(http.StatusOK)
+		} else {
+			file, err := os.Create(fmt.Sprintf("./%s.json", username))
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			defer file.Close()
+
+			data, err := ioutil.ReadAll(r.Body)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			defer r.Body.Close()
+
+			_, err = file.Write(data)
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+
+			w.WriteHeader(http.StatusOK)
+		}
+	} else {
+		w.WriteHeader(http.StatusForbidden)
 		return
 	}
-	defer r.Body.Close()
-
-	_, err = file.Write(data)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-
 }
