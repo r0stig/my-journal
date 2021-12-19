@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -61,7 +62,10 @@ func (h handler) login(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Form %v\n", r.PostForm)
 
 	user, err := h.storer.GetUser(username)
-	if err != nil {
+	if err != nil && errors.Is(err, users.ErrNotFound) {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	} else if err != nil {
 		h.logger.Warnf("Error fetching user: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

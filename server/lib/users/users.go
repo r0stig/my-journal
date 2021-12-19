@@ -2,11 +2,14 @@ package users
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 
 	"go.uber.org/zap"
 )
+
+var ErrNotFound = errors.New("Not found")
 
 type UserEntry struct {
 	Username string `json:"username"`
@@ -52,5 +55,5 @@ func (f FileStorer) GetUser(username string) (UserEntry, error) {
 			return user, nil
 		}
 	}
-	return userEntry, nil
+	return userEntry, ErrNotFound
 }
