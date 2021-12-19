@@ -9,19 +9,23 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/gorilla/mux"
+	"github.com/r0stig/my-journal/server/lib/users"
 	"go.uber.org/zap"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var jwtSecret []byte
 
 type API struct {
 	logger *zap.SugaredLogger
+	storer users.Storer
 }
 
 func NewAPI(logger *zap.SugaredLogger) *API {
 	jwtSecret = []byte("abc123")
 	return &API{
-		logger,
+		logger: logger,
+		storer: users.NewFileStorer("./users.json", logger),
 	}
 }
 
@@ -30,6 +34,7 @@ func (api API) Start() {
 
 	h := &handler{
 		logger: api.logger,
+		storer: api.storer,
 	}
 	r.HandleFunc("/login", h.login).Methods(http.MethodPost)
 	r.HandleFunc("/store", h.storeDatabaseHandler)
@@ -40,6 +45,8 @@ func (api API) Start() {
 
 	http.Handle("/", r)
 
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte("abc123"), bcrypt.DefaultCost)
+	fmt.Printf("Hash: %s\n", hashedPassword)
 	http.ListenAndServe(fmt.Sprintf(":%s", os.Getenv("PORT")), nil)
 }
 
@@ -52,12 +59,19 @@ func (h handler) login(w http.ResponseWriter, r *http.Request) {
 	password := r.FormValue("password")
 	fmt.Printf("asdasd username %s pw %s\n", username, password)
 	fmt.Printf("Form %v\n", r.PostForm)
-	/*
-		if username != "r0stig" || password != "abc123" {
-			w.WriteHeader(http.StatusForbidden)
-			return
-		}
-	*/
+
+	user, err := h.storer.GetUser(username)
+	if err != nil {
+		h.logger.Warnf("Error fetching user: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		w.WriteHeader(http.StatusForbidden)
+		return
+	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": username,
