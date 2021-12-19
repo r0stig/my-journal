@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal } from '../modal/modal'
-import { Input, Label, Button, Container, ButtonGroup } from '../login-modal/login-modal-styles'
+import { Input, Label, Button, Container, ButtonGroup, ErrorContainer, SuccessContainer } from '../login-modal/login-modal-styles'
 import { useStore } from '../../lib/store'
 import { useAuth } from '../../lib/use-auth'
 
@@ -12,6 +12,8 @@ export const SyncCredModal: React.FC<Props> = ({ onClose }) => {
   const [user, setUser] = React.useState<string>('user')
   const [password, setPassword] = React.useState<string>('abc123')
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [isSuccess, setIsSuccess] = React.useState<boolean>(false)
+  const [error, setError] = React.useState<string>('')
   const { setToken } = useAuth()
 
   const handleUserChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,6 +31,8 @@ export const SyncCredModal: React.FC<Props> = ({ onClose }) => {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isLoading) {
+      setError('')
+      setIsSuccess(false)
       setIsLoading(true)
       const formData = new FormData()
       formData.append('username', user)
@@ -37,11 +41,18 @@ export const SyncCredModal: React.FC<Props> = ({ onClose }) => {
         method: 'POST',
         body: formData
       })
-      const result = await response.json()
-
-      console.log('loginresult', result)
-      setToken(result.token)
-
+      if (response.status === 200) {
+        const result = await response.json()
+        console.log('loginresult', result)
+        setToken(result.token)
+        setUser('')
+        setPassword('')
+        setIsSuccess(true)
+      } else if (response.status === 403) {
+        setError('Wrong username or password')
+      } else {
+        setError('Something went wrong...')
+      }
       setIsLoading(false)
     }
   }
@@ -51,14 +62,18 @@ export const SyncCredModal: React.FC<Props> = ({ onClose }) => {
       <Container>
         <Label>Set sync credentials</Label>
         <form onSubmit={handleFormSubmit}>
-        <Input
+          <Input
+            placeholder='Username'
             value={user}
             onChange={handleUserChange}
           />
           <Input
+            placeholder='Password'
             value={password}
             onChange={handlePasswordChange}
           />
+          {error && <ErrorContainer>{error}</ErrorContainer>}
+          {isSuccess && <SuccessContainer>Successfully signed in</SuccessContainer>}
           <ButtonGroup>
             <Button
               displayType='secondary'

@@ -21,6 +21,16 @@ export const Input = styled.input`
   margin-bottom: 10px;
 `
 
+export const ErrorContainer = styled.div`
+  margin-bottom: 10px;
+  color: #b50303;
+`
+
+export const SuccessContainer = styled.div`
+margin-bottom: 10px;
+  color: #017a01;
+`
+
 export const ButtonGroup = styled.div`
   display: flex;
   justify-content: space-between;
