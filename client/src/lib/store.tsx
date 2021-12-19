@@ -1,5 +1,6 @@
 import React from 'react'
 import { decrypt, encrypt, getKey } from "./crypto"
+import { useAuth } from './use-auth'
 
 export type Entry = {
   title: string
@@ -43,6 +44,8 @@ const StoreContext = React.createContext<StoreContextProps>({
 export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
   const db = React.useRef<IDBDatabase | undefined>(undefined)
   const dbKey = React.useRef<CryptoKey | undefined>(undefined)
+
+  const { token } = useAuth()
 
   const initStore = (password: string): Promise<void> => {
     return new Promise((resolve, reject) => {
@@ -265,7 +268,18 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
 
   const importStore = async (): Promise<void> => {
     const url = 'http://localhost:3000/store'
-    const response = await fetch(url)
+    const response = await fetch(url, {
+      headers: {
+        "Authorization": token
+      }
+    })
+    if (response.status === 403) {
+      throw new Error('Authorizaion failed')
+    }
+    if (response.status !== 200) {
+      throw new Error(`Error fetching from server (${response.status})`)
+    }
+
     const result: EncryptedEntry[] = await response.json()
 
     const decryptedEntries: Entry[] = []
@@ -311,7 +325,8 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
           method: 'PUT',
           body: JSON.stringify(result),
           headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            'Authorization': token
           }
         }).then(() => {
           resolve(result)
