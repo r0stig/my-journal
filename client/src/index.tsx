@@ -5,12 +5,15 @@ import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
 import { DataStorage } from './lib/store';
+import { Toaster } from './components/toast/toast';
 
 ReactDOM.render(
   <React.StrictMode>
-    <DataStorage>
-      <App />
-    </DataStorage>
+    <Toaster>
+      <DataStorage>
+        <App />
+      </DataStorage>
+    </Toaster>
   </React.StrictMode>,
   document.getElementById('root')
 );

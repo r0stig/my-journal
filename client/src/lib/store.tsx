@@ -23,6 +23,7 @@ type StoreContextProps = {
   storeEntries: (entries: Entry[]) => Promise<void>
   getEntry: (day: string) => Promise<Entry | undefined>
   getEntries: () => Promise<Entry[]>
+  importStore: () => Promise<void>
   exportStore: () => Promise<void>
   changePassword: (newPassword: string) => Promise<void>
 }
@@ -34,6 +35,7 @@ const StoreContext = React.createContext<StoreContextProps>({
   storeEntries: () => Promise.reject(new Error('Not implemented')),
   getEntry: () => Promise.reject(new Error('Not implemented')),
   getEntries: () => Promise.reject(new Error('Not implemented')),
+  importStore: () => Promise.reject(new Error('Not implemented')),
   exportStore: () => Promise.reject(new Error('Not implemented')),
   changePassword: () => Promise.reject(new Error('Not implemented'))
 })
@@ -261,6 +263,22 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
     })
   }
 
+  const importStore = async (): Promise<void> => {
+    const url = 'http://localhost:3000/store'
+    const response = await fetch(url)
+    const result: EncryptedEntry[] = await response.json()
+
+    const decryptedEntries: Entry[] = []
+    await Promise.all(result.map(async (entry) => {
+      if (!dbKey.current) {
+        throw new Error('No key provided')
+      }
+      const decrypted = await decrypt(dbKey.current, entry.payload)
+      decryptedEntries.push(JSON.parse(decrypted))
+    }))
+    await storeEntries(decryptedEntries)
+  }
+
   const exportStore = (): Promise<void> => {
     return new Promise((resolve, reject) => {
       if (!db.current) {
@@ -287,8 +305,8 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
         const result = event.target.result
         console.log('get all result', result)
 
-        const url = 'http://journal.swedishcolander.com/store'
-        // const url = 'http://localhost:8080/store'
+        //const url = 'http://journal.swedishcolander.com/store'
+        const url = 'http://localhost:3000/store'
         fetch(url, {
           method: 'PUT',
           body: JSON.stringify(result),
@@ -321,6 +339,7 @@ export const DataStorage: React.FC<React.PropsWithChildren<{}>> = ({ children })
       storeEntries,
       getEntry,
       getEntries,
+      importStore,
       exportStore,
       changePassword
     }}>

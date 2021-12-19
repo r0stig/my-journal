@@ -11,6 +11,7 @@ export const TopBar = styled.div`
 
 export const MenuButton = styled.div`
   font-size: 34px;
+  cursor: pointer;
 `
 
 interface MenuWrapperProps {

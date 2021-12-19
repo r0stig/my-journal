@@ -3,7 +3,7 @@ import logo from './logo.svg'
 import { Write } from './pages/write/Write'
 import { Entries } from './components/entries/entries'
 import { TabBar, Tabs } from './components/tab-bar/tab-bar'
-import { Toaster } from './components/toast/toast'
+import { Toaster, ToastContext } from './components/toast/toast'
 import { Calendar } from './pages/calendar/calendar'
 import { Container } from './app-styles'
 import { LoginModal } from './components/login-modal/login-modal'
@@ -20,8 +20,10 @@ function App() {
   const [tabOpen, setTabOpen] = React.useState<Tabs>('list')
   const [writeDay, setWriteDay] = React.useState<string>(getTodayKey())
 
-  const { initStore } = useStore()
+  const { initStore, importStore } = useStore()
   const { signIn, isSignedIn } = useAccount()
+
+  const toastContext = React.useContext(ToastContext)
 
   const handleTabClick = (item: Tabs) => {
     if (item === 'write') {
@@ -45,36 +47,36 @@ function App() {
     setTabOpen('list')
   }
 
-  const handleLogin = (password: string) => {
+  const handleLogin = async (password: string) => {
     setIsLoading(true)
-    initStore(password).then(() => {
-      signIn()
-      // setIsSignedIn(true)
-      setIsLoading(false)
-    }).catch((err) => {
-      console.error(err)
-      setIsLoading(false)
-    })
+    await initStore(password)
+    try {
+      await importStore()
+    } catch (err: any) {
+      toastContext.showToast({
+        content: 'Error importing database: ' + err.message
+      })
+    }
+    signIn()
+    setIsLoading(false)
   }
 
   return (
-    <Toaster>
-      <Container>
-        {isSignedIn && <>
-          {isLoading && <>
-            Loading...
-          </>}
-          {!isLoading && <>
-            {tabOpen !== 'write' && <Menu />}
-            {tabOpen === 'calendar' && <Calendar onDayClick={handleDayClick} />}
-            {tabOpen === 'list' && <Entries onEntryClick={handleEntryClick} />}
-            {tabOpen === 'write' && <Write entryKey={writeDay} onBack={handleWriteBack} />}
-            {tabOpen !== 'write' && <TabBar onTabClick={handleTabClick} />}
-          </>}
+    <Container>
+      {isSignedIn && <>
+        {isLoading && <>
+          Loading...
         </>}
-        {!isSignedIn && <LoginModal onLogin={handleLogin} />}
-      </Container>
-    </Toaster>
+        {!isLoading && <>
+          {tabOpen !== 'write' && <Menu />}
+          {tabOpen === 'calendar' && <Calendar onDayClick={handleDayClick} />}
+          {tabOpen === 'list' && <Entries onEntryClick={handleEntryClick} />}
+          {tabOpen === 'write' && <Write entryKey={writeDay} onBack={handleWriteBack} />}
+          {tabOpen !== 'write' && <TabBar onTabClick={handleTabClick} />}
+        </>}
+      </>}
+      {!isSignedIn && <LoginModal onLogin={handleLogin} />}
+    </Container>
   )
 }
 
